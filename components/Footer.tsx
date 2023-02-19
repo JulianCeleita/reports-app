@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Footer() {
+const Footer: React.FC = () => {
   return (
     <div className='flex justify-center items-center gap-5 py-3'>
       <a href="#">
@@ -11,3 +11,5 @@ export default function Footer() {
     </div>
   )
 }
+
+export default Footer;
