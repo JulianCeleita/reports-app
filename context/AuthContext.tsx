@@ -1,33 +1,43 @@
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import React, { useContext, useEffect, useState } from 'react'
 import { auth } from '../firebase'
+import firebase from "firebase/app"
+import {User} from '@firebase/auth-types'
 
-const AuthContext = React.createContext()
+
+
+export interface AuthContextType {
+    currentUser: firebase.User | null;
+    signup: (email: string, password: string) => Promise<firebase.auth.UserCredential>;
+    login: (email: string, password: string) => Promise<firebase.auth.UserCredential>;
+    logout: () => Promise<void>;
+  }
+
+const AuthContext = React.createContext < AuthContextType > ({} as AuthContextType);
 
 export function useAuth() {
-    return useContext(AuthContext)
+    return useContext(AuthContext);
 }
  
-export function AuthProvider({ children }) {
-    const [currentUser, setCurrentUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+export function AuthProvider({ children }:{children: React.ReactNode}) {
+    const [currentUser, setCurrentUser] = useState<firebase.User | null>(null);
+    const [loading, setLoading] = useState<boolean>(true)
 
-    function signup(email, password) {
-        createUserWithEmailAndPassword(auth, email, password)
-        return
+    const  signup = (email:string, password:string) => {
+       return createUserWithEmailAndPassword(auth, email, password)
     }
 
-    function login(email, password) {
+    const login = (email:string, password:string) => {
         return signInWithEmailAndPassword(auth, email, password)
     }
 
-    function logout() {
+    const logout = () => {
         return signOut(auth)
     }
 
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async user => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user)
             setLoading(false)
         })
