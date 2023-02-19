@@ -13,7 +13,7 @@ export default function UserDashboard(): JSX.Element {
   const [todo, setTodo] = useState<string>("");
   const [edittedValue, setEdittedValue] = useState<string>("");
 
-  const { todos, setTodos, loading, error } = useFetchTodos();
+  const { todos, setTodos, loading } = useFetchTodos();
 
   console.log(todos);
 
