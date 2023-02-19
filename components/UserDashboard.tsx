@@ -1,19 +1,21 @@
-import { deleteField, doc, setDoc } from 'firebase/firestore'
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import TodoCard from './TodoCard'
+import { doc, setDoc, deleteField } from 'firebase/firestore'
 import { db } from '../firebase'
 import useFetchTodos from '../hooks/fetchTodos'
-import TodoCard from './TodoCard'
 
-export default function UserDashboard() {
+type Todos = Record<string, string>;
+
+export default function UserDashboard(): JSX.Element {
     const { userInfo, currentUser } = useAuth()
-    const [edit, setEdit] = useState(null)
-    const [todo, setTodo] = useState('')
-    const [edittedValue, setEdittedValue] = useState('')
+    const [edit, setEdit] = useState<string | null>(null)
+    const [todo, setTodo] = useState<string>('')
+    const [edittedValue, setEdittedValue] = useState<string>('')
 
     const { todos, setTodos, loading, error } = useFetchTodos()
 
- 
+
 
     console.log(todos)
 
@@ -50,18 +52,16 @@ export default function UserDashboard() {
         setEdittedValue('')
     }
 
-    function handleAddEdit(todoKey) {
+    function handleAddEdit(todoKey: string) {
         return () => {
-            console.log(todos[todoKey])
-            console.log('bannan')
             setEdit(todoKey)
             setEdittedValue(todos[todoKey])
         }
     }
 
-    function handleDelete(todoKey) {
+    function handleDelete(todoKey: string) {
         return async () => {
-            const tempObj = { ...todos }
+            const tempObj: Todos = { ...todos }
             delete tempObj[todoKey]
 
             setTodos(tempObj)

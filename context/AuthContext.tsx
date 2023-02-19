@@ -5,7 +5,7 @@ import firebase from "firebase/app"
 import {User} from '@firebase/auth-types'
 
 
-
+ 
 export interface AuthContextType {
     currentUser: firebase.User | null;
     signup: (email: string, password: string) => Promise<firebase.auth.UserCredential>;
