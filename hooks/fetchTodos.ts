@@ -12,8 +12,8 @@ interface TodoType {
 interface FetchTodoReturnType {
   loading: boolean;
   error: string | null;
-  todos: TodoType[] | null;
-  setTodos: React.Dispatch<React.SetStateAction<TodoType[] | null>>;
+  todos: TodoType[] | any;
+  setTodos: React.Dispatch<React.SetStateAction<TodoType[] | any>>;
 }
 
 export default function useFetchTodos(): FetchTodoReturnType {
@@ -26,12 +26,14 @@ export default function useFetchTodos(): FetchTodoReturnType {
   useEffect(() => {
     async function fetchData() {
       try {
+        if (currentUser) {
         const docRef = doc(db, "users", currentUser.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setTodos(docSnap.data().todos);
         } else {
           setTodos([]);
+        }
         }
       } catch (err) {
         setError("Failed to load todos");
@@ -41,7 +43,7 @@ export default function useFetchTodos(): FetchTodoReturnType {
       }
     }
     fetchData();
-  }, [currentUser.uid]);
+  }, [currentUser]);
 
   return { loading, error, todos, setTodos };
 }

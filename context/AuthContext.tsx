@@ -1,11 +1,9 @@
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import React, { useContext, useEffect, useState } from 'react'
 import { auth } from '../firebase'
-import firebase from "firebase/app"
-import {User} from '@firebase/auth-types'
+import firebase from "firebase/compat/app"
 
 
- 
 export interface AuthContextType {
     currentUser: firebase.User | null;
     signup: (email: string, password: string) => Promise<firebase.auth.UserCredential>;
