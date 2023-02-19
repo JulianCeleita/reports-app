@@ -40,25 +40,25 @@ export default function Login(): JSX.Element {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email Address"
-        className="outline-none duration-300 border-b-2 border-solid border-white focus:border-orange-600 text-slate-900 px-2 py-1 w-full max-w-[40ch]"
+        className="outline-none duration-300 border-b-2 border-solid border-white focus:border-emerald-600 text-slate-900 px-2 py-1 w-full max-w-[40ch]"
       />
       <input
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         type="password"
         placeholder="Password"
-        className="outline-none duration-300 border-b-2 border-solid border-white focus:border-orange-600 text-slate-900 px-2 py-1 w-full max-w-[40ch]"
+        className="outline-none duration-300 border-b-2 border-solid border-white focus:border-emerald-600 text-slate-900 px-2 py-1 w-full max-w-[40ch]"
       />
       <button
         onClick={submitHandler}
         className="w-full max-w-[40ch] border border-white border-solid uppercase py-2 duration-300 relative
-         after:absolute after:top-0 after:right-full after:bg-blue-100 after:z-10 after:w-full after:h-full 
-         overflow-hidden hover:after:translate-x-full after:duration-300 hover:text-slate-900"
+         after:absolute after:top-0 after:right-full after:bg-emerald-600 after:w-full after:h-full 
+         overflow-hidden hover:after:translate-x-full after:duration-300 hover:text-white"
       >
-        <h2 className="relative z-20">SUBMIT</h2>
+        <h2 className="relative z-10 duration-200 hover:scale-110">SUBMIT</h2>
       </button>
       <h2
-        className="duration-300 hover:scale-110 cursor-pointer"
+        className="duration-300 hover:scale-110 cursor-pointer underline"
         onClick={() => setIsLoggingIn(!isLoggingIn)}
       >
         {!isLoggingIn ? "Login" : "Register"}

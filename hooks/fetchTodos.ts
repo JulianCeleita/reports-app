@@ -27,13 +27,13 @@ export default function useFetchTodos(): FetchTodoReturnType {
     async function fetchData() {
       try {
         if (currentUser) {
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setTodos(docSnap.data().todos);
-        } else {
-          setTodos([]);
-        }
+          const docRef = doc(db, "users", currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setTodos(docSnap.data().todos);
+          } else {
+            setTodos([]);
+          }
         }
       } catch (err) {
         setError("Failed to load todos");
