@@ -1,42 +1,58 @@
+import { useState } from "react";
+import { reports } from "../database/reportsData";
+
 function Reports() {
+  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+
+  const handleReportClick = (reportId: number) => {
+    setSelectedReportId(reportId);
+  };
   return (
     <div className="flex-1 h-full flex">
       <div className="flex-1 grid gap-2 grid-flow-row-dense lg:grid-rows-3 lg:grid-cols-4 md:grid-cols-3 md:grid-rows-2">
+        
+
+        {/* LISTA DE REPORTES */}
+        
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-3 lg:col-span-1 md:col-span-1">
           <h2 className="text-slate-100 text-xl mb-4 font-semibold leading-6">
             Reports
           </h2>
-          <p className="text-slate-200">
-            <ol>
-              <li className="mb-2"> Section 1 </li>
-              <li className="mb-2"> Section 2 </li>
-              <li className="mb-2"> Section 3 </li>
-              <li className="mb-2"> Section 4 </li>
-              <li className="mb-2"> Section 5 </li>
-              <li className="mb-2"> Section 6 </li>
-              <li className="mb-2"> Section 7 </li>
-              <li className="mb-2"> Section 8 </li>
-              <li className="mb-2"> Section 9 </li>
-              <li className="mb-2"> Section 10 </li>
-              <li className="mb-2"> Section 11 </li>
-              <li className="mb-2"> Section 12 </li>
-              <li className="mb-2"> Section 13 </li>
-              <li className="mb-2"> Section 14 </li>
-              <li className="mb-2"> Section 15 </li>
-            </ol>
-          </p>
-          <div className="flex justify-end bg-inherit items-center">
-            <button className="p-2 max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
-              Add
-            </button>
-            </div>
+          <div className="text-slate-200 flex flex-col">
+            {reports.map((report) => (
+              <button
+                className={`text-left my-1 ${
+                  report.id === selectedReportId ? "text-orange-500" : ""
+                }`}
+                key={report.id}
+                onClick={() => handleReportClick(report.id)}
+              >
+                {report.name}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
-          <h2 className="text-slate-100 text-lg font-semibold leading-6 text-center ">
-            IFRAME
-          </h2>
+
+        {/* Aqui va el IFRAME */}
+
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
+          {selectedReportId !== null ? (
+            <iframe
+              className="bg-slate-400 h-full rounded-md"
+              srcDoc={
+                reports.find((report) => report.id === selectedReportId)?.text
+              }
+            />
+          ) : (
+            <div className="text-slate-100 text-lg font-semibold text-center">
+              Seleccione un reporte
+            </div>
+          )}
         </div>
+
+
+            {/* LISTA DE COMENTARIOS */}
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1">
           <h2 className="text-slate-100 text-xl mb-4 font-semibold leading-6">
@@ -56,8 +72,11 @@ function Reports() {
             <button className="p-2 max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
               Add
             </button>
-            </div>
+          </div>
         </div>
+
+
+        {/* DESCRIPCION DEL COMENTARIO */}
 
         <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
           <h2 className="text-slate-100 text-xl font-semibold leading-6">
