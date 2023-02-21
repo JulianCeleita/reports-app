@@ -21,7 +21,7 @@ function Reports() {
           <div className="text-slate-200 flex flex-col">
             {reports.map((report) => (
               <button
-                className={`text-left my-1 ${
+                className={`text-left my-1 duration-300 hover:bg-slate-700 cursor-pointer select-none ${
                   report.id === selectedReportId ? "text-orange-500" : ""
                 }`}
                 key={report.id}
