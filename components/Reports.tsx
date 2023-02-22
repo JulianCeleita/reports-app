@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { reports } from "../database/reportsData";
+import ListComment from "./comments/ListComment";
 
 function Reports() {
+  
+  // AGREGAR REPORTES A LA LISTA
+  
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
 
   const handleReportClick = (reportId: number) => {
@@ -46,7 +50,7 @@ function Reports() {
             />
           ) : (
             <div className="text-slate-100 text-lg font-semibold text-center">
-              Seleccione un reporte
+              Select report from the list
             </div>
           )}
         </div>
@@ -55,7 +59,8 @@ function Reports() {
             {/* LISTA DE COMENTARIOS */}
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1">
-          <h2 className="text-slate-100 text-xl mb-4 font-semibold leading-6">
+          <ListComment/>
+          {/* <h2 className="text-slate-100 text-xl mb-4 font-semibold leading-6">
             Comments
           </h2>
           <p className="text-slate-200">
@@ -72,7 +77,7 @@ function Reports() {
             <button className="p-2 max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
               Add
             </button>
-          </div>
+          </div> */}
         </div>
 
 
@@ -90,7 +95,9 @@ function Reports() {
             et ex semper rhoncus.
           </p>
           <div className="flex justify-between">
-            <button className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
+            <button 
+
+              className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
               Delete
             </button>
             <button className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">

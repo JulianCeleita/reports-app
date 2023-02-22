@@ -2,47 +2,45 @@ import { deleteField, doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
-import useFetchTodos from "../hooks/fetchTodos";
-import TodoCard from "./TodoCard";
+import useFetchComments from "../hooks/fetchComments";
+import CommentCard from "./comments/ListComment";
 
-type Todos = Record<string, string>;
+type Comments = Record<string, string>;
 
 export default function UserDashboard(): JSX.Element {
   const { currentUser } = useAuth();
   const [edit, setEdit] = useState<string | any>(null);
-  const [todo, setTodo] = useState<string>("");
+  const [comment, setComment] = useState<string>("");
   const [edittedValue, setEdittedValue] = useState<string>("");
 
-  const { todos, setTodos, loading } = useFetchTodos();
+  const { comments, setComments, loading } = useFetchComments();
 
-  console.log(todos);
-
-  async function handleAddTodo() {
+  async function handleAddComment() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
-    if (!todo) {
+    if (!comment) {
       return;
     }
     const newKey =
-      Object.keys(todos).length === 0
+      Object.keys(comments).length === 0
         ? 1
-        : Math.max(...Object.keys(todos).map(Number)) + 1;
-    setTodos({ ...todos, [newKey]: todo });
+        : Math.max(...Object.keys(comments).map(Number)) + 1;
+    setComments({ ...comments, [newKey]: comment });
     const userRef = doc(db, "users", currentUser.uid);
     await setDoc(
       userRef,
       {
-        todos: {
-          [newKey]: todo,
+        comments: {
+          [newKey]: comment,
         },
       },
       { merge: true }
     );
-    setTodo("");
+    setComment("");
   }
 
-  async function handleEditTodo() {
+  async function handleEditComment() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
@@ -50,12 +48,12 @@ export default function UserDashboard(): JSX.Element {
       return;
     }
     const newKey = edit;
-    setTodos({ ...todos, [newKey]: edittedValue });
+    setComments({ ...comments, [newKey]: edittedValue });
     const userRef = doc(db, "users", currentUser.uid);
     await setDoc(
       userRef,
       {
-        todos: {
+        comments: {
           [newKey]: edittedValue,
         },
       },
@@ -65,28 +63,28 @@ export default function UserDashboard(): JSX.Element {
     setEdittedValue("");
   }
 
-  function handleAddEdit(todoKey: any) {
+  function handleAddEdit(commentKey: any) {
     return () => {
-      setEdit(todoKey);
-      setEdittedValue(todos[todoKey]);
+      setEdit(commentKey);
+      setEdittedValue(comments[commentKey]);
     };
   }
 
-  function handleDelete(todoKey: string) {
+  function handleDelete(commentKey: string) {
     return async () => {
       if (!currentUser) {
         return <div>Loading...</div>;
       }
-      const tempObj: Todos = { ...todos };
-      delete tempObj[todoKey];
+      const tempObj: Comments = { ...comments };
+      delete tempObj[commentKey];
 
-      setTodos(tempObj);
+      setComments(tempObj);
       const userRef = doc(db, "users", currentUser.uid);
       await setDoc(
         userRef,
         {
-          todos: {
-            [todoKey]: deleteField(),
+          comments: {
+            [commentKey]: deleteField(),
           },
         },
         { merge: true }
@@ -99,13 +97,13 @@ export default function UserDashboard(): JSX.Element {
       <div className="flex items-stretch">
         <input
           type="text"
-          placeholder="Enter todo"
-          value={todo}
-          onChange={(e) => setTodo(e.target.value)}
+          placeholder="Title comment"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
           className="outline-none p-3 text-base sm:text-lg text-slate-900 flex-1"
         />
         <button
-          onClick={handleAddTodo}
+          onClick={handleAddComment}
           className="w-fit px-4 sm:px-6 py-2 sm:py-3 bg-amber-400 text-white font-medium text-base duration-300 hover:opacity-40"
         >
           ADD
@@ -118,20 +116,20 @@ export default function UserDashboard(): JSX.Element {
       )}
       {!loading && (
         <>
-          {Object.keys(todos).map((todo, i) => {
+          {Object.keys(comments).map((comment, i) => {
             return (
-              <TodoCard
-                handleEditTodo={handleEditTodo}
+              <CommentCard
+                handleEditComment={handleEditComment}
                 key={i}
                 handleAddEdit={handleAddEdit}
                 edit={edit}
-                todoKey={todo}
+                commentKey={comment}
                 edittedValue={edittedValue}
                 setEdittedValue={setEdittedValue}
                 handleDelete={handleDelete}
               >
-                {todos[todo]}
-              </TodoCard>
+                {comments[comment]}
+              </CommentCard>
             );
           })}
         </>

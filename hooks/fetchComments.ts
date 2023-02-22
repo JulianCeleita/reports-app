@@ -3,23 +3,23 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 
-interface TodoType {
+interface CommentType {
   id: string;
   title: string;
   completed: boolean;
 }
 
-interface FetchTodoReturnType {
+interface FetchCommentReturnType {
   loading: boolean;
   error: string | null;
-  todos: TodoType[] | any;
-  setTodos: React.Dispatch<React.SetStateAction<TodoType[] | any>>;
+  comments: CommentType[] | any;
+  setComments: React.Dispatch<React.SetStateAction<CommentType[] | any>>;
 }
 
-export default function useFetchTodos(): FetchTodoReturnType {
+export default function useFetchComments(): FetchCommentReturnType {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [todos, setTodos] = useState<TodoType[] | null>(null);
+  const [comments, setComments] = useState<CommentType[] | null>(null);
 
   const { currentUser } = useAuth();
 
@@ -30,13 +30,13 @@ export default function useFetchTodos(): FetchTodoReturnType {
           const docRef = doc(db, "users", currentUser.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            setTodos(docSnap.data().todos);
+            setComments(docSnap.data().comments);
           } else {
-            setTodos([]);
+            setComments([]);
           }
         }
       } catch (err) {
-        setError("Failed to load todos");
+        setError("Failed to load comments");
         console.log(err);
       } finally {
         setLoading(false);
@@ -45,5 +45,5 @@ export default function useFetchTodos(): FetchTodoReturnType {
     fetchData();
   }, [currentUser]);
 
-  return { loading, error, todos, setTodos };
+  return { loading, error, comments, setComments };
 }
