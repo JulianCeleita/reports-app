@@ -6,7 +6,7 @@ import { db } from "../firebase";
 interface CommentType {
   id: string;
   title: string;
-  completed: boolean;
+  description: string;
 }
 
 interface FetchCommentReturnType {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
-import CommentCard from "./comments/ListComment";
+import CommentList from "./comments/tools/CommentList";
 
 type Comments = Record<string, string>;
 
@@ -118,7 +118,7 @@ export default function UserDashboard(): JSX.Element {
         <>
           {Object.keys(comments).map((comment, i) => {
             return (
-              <CommentCard
+              <CommentList
                 handleEditComment={handleEditComment}
                 key={i}
                 handleAddEdit={handleAddEdit}
@@ -129,7 +129,7 @@ export default function UserDashboard(): JSX.Element {
                 handleDelete={handleDelete}
               >
                 {comments[comment]}
-              </CommentCard>
+              </CommentList>
             );
           })}
         </>

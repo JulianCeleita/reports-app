@@ -1,41 +1,32 @@
+import { useAuth } from "context/AuthContext";
 import { deleteField, doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import CommentList from "./tools/CommentList";
 import { db } from "../../firebase";
 import useFetchComments from "../../hooks/fetchComments";
 
-export interface CommentProps {
-    children: React.ReactNode;
-    edit: string | null;
-    handleAddEdit: (key: string) => () => void;
-    edittedValue: string;
-    setEdittedValue: React.Dispatch<React.SetStateAction<string>>;
-    todoKey: string;
-    handleEditTodo: () => void;
-    handleDelete: (key: string) => () => void;
-  }
+export interface TodoCardProps {
+  children: React.ReactNode;
+  edit: string | null;
+  handleAddEdit: (key: string) => () => void;
+  edittedValue: string;
+  setEdittedValue: React.Dispatch<React.SetStateAction<string>>;
+  todoKey: string;
+  handleEditTodo: () => void;
+  handleDelete: (key: string) => () => void;
+}
 
-type Comments = Record<string, string>;
+type Todos = Record<string, string>;
 
-export default function CommentDescription(props: CommentProps) {
-    const {
-      children,
-      edit,
-      edittedValue,
-      setEdittedValue,
-      commentKey
-    } = props;
+export default function DescriptionComment(props: TodoCardProps): JSX.Element {
+  const { currentUser } = useAuth();
+  const [edit, setEdit] = useState<string | any>(null);
+  const [edittedValue, setEdittedValue] = useState<string>("");
 
-    const { currentUser } = useAuth();
-    const [edit, setEdit] = useState<string | any>(null);
-    const [comment, setComment] = useState<string>("");
-    const [edittedValue, setEdittedValue] = useState<string>("");
+  const { todos, setTodos, loading } = useFetchComments();
+  const { children, todoKey } = props;
   
-    const { comments, setComments, loading } = useFetchComments();
-  
-
-    
-  async function handleEditComment() {
+  async function handleEditTodo() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
@@ -43,12 +34,12 @@ export default function CommentDescription(props: CommentProps) {
       return;
     }
     const newKey = edit;
-    setComments({ ...comments, [newKey]: edittedValue });
+    setTodos({ ...todos, [newKey]: edittedValue });
     const userRef = doc(db, "users", currentUser.uid);
     await setDoc(
       userRef,
       {
-        comments: {
+        todos: {
           [newKey]: edittedValue,
         },
       },
@@ -58,65 +49,64 @@ export default function CommentDescription(props: CommentProps) {
     setEdittedValue("");
   }
 
-  function handleAddEdit(commentKey: any) {
+  function handleAddEdit(todoKey: any) {
     return () => {
-      setEdit(commentKey);
-      setEdittedValue(comments[commentKey]);
+      setEdit(todoKey);
+      setEdittedValue(todos[todoKey]);
     };
   }
 
-  function handleDelete(commentKey: string) {
+  function handleDelete(todoKey: string) {
     return async () => {
       if (!currentUser) {
         return <div>Loading...</div>;
       }
-      const tempObj: Comments = { ...comments };
-      delete tempObj[commentKey];
+      const tempObj: Todos = { ...todos };
+      delete tempObj[todoKey];
 
-      setComments(tempObj);
+      setTodos(tempObj);
       const userRef = doc(db, "users", currentUser.uid);
       await setDoc(
         userRef,
         {
-          comments: {
-            [commentKey]: deleteField(),
+          todos: {
+            [todoKey]: deleteField(),
           },
         },
         { merge: true }
       );
     };
   }
-  
-    return (
-      <div className="p-2 relative sm:p-3 border flex items-stretch border-white border-solid ">
-        <div className="flex-1 flex">
-          {!(edit === commentKey) ? (
-            <>{children}</>
-          ) : (
-            <input
-              className="bg-inherit flex-1 text-white outline-none"
-              value={edittedValue}
-              onChange={(e) => setEdittedValue(e.target.value)}
-            />
-          )}
-        </div>
-        <div className="flex items-center">
-          {edit === commentKey ? (
-            <i
-              onClick={handleEditComment}
-              className="fa-solid fa-check px-2 duration-300 hover:scale-125 cursor-pointer"
-            ></i>
-          ) : (
-            <i
-              onClick={handleAddEdit(commentKey)}
-              className="fa-solid fa-pencil px-2 duration-300 hover:rotate-45 cursor-pointer"
-            ></i>
-          )}
-          <i
-            onClick={handleDelete(commentKey)}
-            className="fa-solid fa-trash-can px-2 duration-300 hover:scale-125 cursor-pointer"
-          ></i>
-        </div>
+
+  return (
+    <div className="w-full h-full flex flex-col  sm:gap-2 overflow-y-auto ">
+      <h2 className="text-slate-100 text-xl font-semibold leading-6">
+        Title Comment
+      </h2>
+
+      {/* COMMENTS LIST  */}
+      <div className="flex-1 flex">
+        {!(edit === todoKey) ? (
+          <>{children}</>
+        ) : (
+          <input
+            className="bg-inherit flex-1 text-white outline-none"
+            value={edittedValue}
+            onChange={(e) => setEdittedValue(e.target.value)}
+          />
+        )}
       </div>
-    );
-  }
+      <div className="flex justify-between">
+        <button 
+        onClick={handleDelete(todoKey)}
+        className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
+          Delete
+        </button>
+        <button onClick={handleAddEdit(todoKey)}
+        className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
+          Save
+        </button>
+      </div>
+    </div>
+  );
+}
