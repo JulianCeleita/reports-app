@@ -5,41 +5,41 @@ import CommentList from "./tools/CommentList";
 import { db } from "../../firebase";
 import useFetchComments from "../../hooks/fetchComments";
 
-export interface TodoCardProps {
+export interface CommentProps {
   children: React.ReactNode;
   edit: string | null;
   handleAddEdit: (key: string) => () => void;
   edittedValue: string;
   setEdittedValue: React.Dispatch<React.SetStateAction<string>>;
-  todoKey: string;
-  handleEditTodo: () => void;
+  commentKey: string;
+  handleEditComment: () => void;
   handleDelete: (key: string) => () => void;
 }
 
-type Todos = Record<string, string>;
+type Comments = Record<string, string>;
 
-export default function DescriptionComment(props: TodoCardProps): JSX.Element {
+export default function DescriptionComment(props: CommentProps): JSX.Element {
   const { currentUser } = useAuth();
   const [edit, setEdit] = useState<string | any>(null);
   const [edittedValue, setEdittedValue] = useState<string>("");
 
-  const { todos, setTodos, loading } = useFetchComments();
-  const { children, todoKey } = props;
+  const { comments, setComments, loading } = useFetchComments();
+  const { children, commentKey } = props;
   
-  async function handleEditTodo() {
+  async function handleEditComment() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
-    if (!edittedValue) {
+    if (!edittedValue?.title || !edittedValue?.description) {
       return;
     }
     const newKey = edit;
-    setTodos({ ...todos, [newKey]: edittedValue });
+    setComments({ ...comments, [newKey]: edittedValue });
     const userRef = doc(db, "users", currentUser.uid);
     await setDoc(
       userRef,
       {
-        todos: {
+        comments: {
           [newKey]: edittedValue,
         },
       },
@@ -49,28 +49,28 @@ export default function DescriptionComment(props: TodoCardProps): JSX.Element {
     setEdittedValue("");
   }
 
-  function handleAddEdit(todoKey: any) {
+  function handleAddEdit(commentKey: any) {
     return () => {
-      setEdit(todoKey);
-      setEdittedValue(todos[todoKey]);
+      setEdit(commentKey);
+      setEdittedValue(comments[commentKey]);
     };
   }
 
-  function handleDelete(todoKey: string) {
+  function handleDelete(commentKey: string) {
     return async () => {
       if (!currentUser) {
         return <div>Loading...</div>;
       }
-      const tempObj: Todos = { ...todos };
-      delete tempObj[todoKey];
+      const tempObj: Comments = { ...comments };
+      delete tempObj[commentKey];
 
-      setTodos(tempObj);
+      setComments(tempObj);
       const userRef = doc(db, "users", currentUser.uid);
       await setDoc(
         userRef,
         {
-          todos: {
-            [todoKey]: deleteField(),
+          comments: {
+            [commentKey]: deleteField(),
           },
         },
         { merge: true }
@@ -86,7 +86,7 @@ export default function DescriptionComment(props: TodoCardProps): JSX.Element {
 
       {/* COMMENTS LIST  */}
       <div className="flex-1 flex">
-        {!(edit === todoKey) ? (
+        {!(edit === commentKey) ? (
           <>{children}</>
         ) : (
           <input
@@ -97,22 +97,51 @@ export default function DescriptionComment(props: TodoCardProps): JSX.Element {
         )}
       </div>
       <div className="flex items-center">
-        {edit === todoKey ? (
+        {edit === commentKey ? (
           <i
-            onClick={handleEditTodo}
+            onClick={handleEditComment}
             className="fa-solid fa-check px-2 duration-300 hover:scale-125 cursor-pointer"
           ></i>
         ) : (
           <i
-            onClick={handleAddEdit(todoKey)}
+            onClick={handleAddEdit(commentKey)}
             className="fa-solid fa-pencil px-2 duration-300 hover:rotate-45 cursor-pointer"
           ></i>
         )}
         <i
-          onClick={handleDelete(todoKey)}
+          onClick={handleDelete(commentKey)}
           className="fa-solid fa-trash-can px-2 duration-300 hover:scale-125 cursor-pointer"
         ></i>
       </div>
     </div>
   );
+}
+
+const { reports, setReports, loading } = useFetchReports();
+const [newReport, setNewReport] = useState<{ title: string, description: string } | null>(null);
+const { currentUser } = useAuth();
+
+async function handleAddReport() {
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+  if (!newReport?.title || !newReport?.description) {
+    return;
+  }
+  const newKey =
+  reports === null || Object.keys(reports).length === 0
+      ? 1
+      : Math.max(...Object.keys(reports).map(Number)) + 1;
+  setReports({ ...reports, [newKey]: newReport });
+  const userRef = doc(db, "users", currentUser.uid);
+  await setDoc(
+    userRef,
+    {
+      reports: {
+        [newKey]: newReport,
+      },
+    },
+    { merge: true }
+  );
+  setNewReport(null);
 }

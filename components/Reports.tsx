@@ -18,12 +18,13 @@ export interface CommentProps {
 
 function Reports(): JSX.Element {
   const { currentUser } = useAuth();
-  const [comment, setComment] = useState<string>("");
   const { comments, setComments, loading } = useFetchComments();
   const [newComment, setNewComment] = useState<{ title: string, description: string } | null>(null);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
   const [selectedComment, setSelectedComment] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [edit, setEdit] = useState<string | any>(null);
+  const [edittedValue, setEdittedValue] = useState<string>("");
   
   // AGREGAR REPORTES A LA LISTA
   
@@ -88,6 +89,29 @@ function handleDelete(commentKey: string) {
     );
     setSelectedComment(null);
   };
+}
+
+async function handleEditComment() {
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+  if (!edittedValue?.title || !edittedValue?.description) {
+    return;
+  }
+  const newKey = edit;
+  setComments({ ...comments, [newKey]: edittedValue });
+  const userRef = doc(db, "users", currentUser.uid);
+  await setDoc(
+    userRef,
+    {
+      comments: {
+        [newKey]: edittedValue,
+      },
+    },
+    { merge: true }
+  );
+  setEdit(null);
+  setEdittedValue("");
 }
 
 
@@ -159,7 +183,11 @@ function handleDelete(commentKey: string) {
                 }`}
                 key={i}
                 value={commentKey}
-                onClick={()=>setSelectedComment(commentKey)}
+                onClick={(e)=>{
+                  setSelectedComment(commentKey);
+                  setEdit(commentKey);
+                  setEdittedValue(comments[commentKey])
+                }}
               >
                 {comments[commentKey].title}
               </button>
@@ -216,12 +244,20 @@ function handleDelete(commentKey: string) {
            ) : (<div className="flex justify-center items-center h-full">
            {selectedComment !== null ? comments[selectedComment] ? (
              <div className="w-full h-full flex flex-col  sm:gap-2 overflow-y-auto ">
-               <h2 className="text-slate-100 text-xl font-semibold leading-6">
-               {comments[selectedComment].title}
-               </h2>
-               <div className="flex-1 flex">
-               {comments[selectedComment].description}
-               </div>
+               <input className="bg-slate-900 outline-none rounded-md p-3 text-base sm:text-lg text-white flex-1"
+                value={edittedValue?.title || comments[selectedComment].title}
+                onChange={(e)=> setEdittedValue((prevState)=> ({
+                  ...prevState,
+                  title: e.target.value,
+                }))}
+               />
+               <textarea className="bg-slate-900 outline-none rounded-md text-white p-3 text-base sm:text-lg flex-1"
+               value={edittedValue?.description || comments[selectedComment].description}
+               onChange={(e)=> setEdittedValue((prevState)=> ({
+                ...prevState,
+                description: e.target.value,
+              }))}
+              />              
                <div className="flex justify-between">
                  <button 
                  className="max-h-10 py-1 px-4 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
@@ -229,7 +265,12 @@ function handleDelete(commentKey: string) {
                  >
                    Delete
                  </button>
-                 <button className="max-h-10 py-1 px-4 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase">
+                 <button className="max-h-10 py-1 px-4 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
+                 onClick={()=> {
+                  handleEditComment();
+                  setEdit(null);
+                  setSelectedComment(null);
+                 }}>
                    Save
                  </button>
                </div>
