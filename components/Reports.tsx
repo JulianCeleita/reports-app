@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { reports, comments } from "../database";
 import { useAuth } from "context/AuthContext";
-import { deleteField, doc, setDoc, FieldValue } from 'firebase/firestore';
+import { deleteField, doc, setDoc } from 'firebase/firestore';
 import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
 
@@ -16,15 +16,20 @@ export interface CommentProps {
   handleDelete: (key: string) => () => void;
 }
 
-function Reports(props: CommentProps): JSX.Element {
+function Reports(): JSX.Element {
   const { currentUser } = useAuth();
   const [comment, setComment] = useState<string>("");
-  const [newComment, setNewComment] = useState<{ title: string, description: string } | null>(null);
-
-  const { children, commentKey, edit, handleAddEdit, edittedValue,
-    setEdittedValue, handleEditComment } = props;
-
   const { comments, setComments, loading } = useFetchComments();
+  const [newComment, setNewComment] = useState<{ title: string, description: string } | null>(null);
+  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [selectedComment, setSelectedComment] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  
+  // AGREGAR REPORTES A LA LISTA
+  
+  const handleReportClick = (reportId: number) => {
+    setSelectedReportId(reportId);
+  };
   
   // AGREGAR COMENTARIOS A LA LISTA
 
@@ -53,6 +58,13 @@ function Reports(props: CommentProps): JSX.Element {
     setNewComment(null);
   }
 
+  // CAMBIAR ENTRE EL INPUT Y EL EDIT
+
+  const handleAddButtonClick = () => {
+    setIsAdding(!isAdding);
+    setNewComment(null)
+  }
+
   // DELETE COMMENTS OF THE LIST
 
 function handleDelete(commentKey: string) {
@@ -78,22 +90,8 @@ function handleDelete(commentKey: string) {
   };
 }
 
-  
 
-
-
-  // AGREGAR REPORTES A LA LISTA
-
-  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
-  const [selectedComment, setSelectedComment] = useState<string | null>(
-    null
-  );
-
-  const handleReportClick = (reportId: number) => {
-    setSelectedReportId(reportId);
-  };
-
-
+  // VISUAL ZONE
 
   return (
     <div className="h-full max-h-screen flex">
@@ -119,7 +117,7 @@ function handleDelete(commentKey: string) {
 </div>
 </div>
 
-        {/* Aqui va el IFRAME */}
+        {/* IFRAME HERE */}
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
           {selectedReportId !== null ? (
@@ -140,7 +138,7 @@ function handleDelete(commentKey: string) {
 
       {/* COMMENTS LIST  */}
 
-        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 w-full max-w-[65ch] h-full flex flex-col gap-3 sm:gap-2 overflow-y-auto ">
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
       <h2 className="text-slate-100 mb-4 text-xl font-semibold leading-6">
         Comments
       </h2>
@@ -170,26 +168,13 @@ function handleDelete(commentKey: string) {
 
           {/* NEW BUTTON TO ADD COMMENTS */}
 
-          <div className="flex items-stretch rounded-md">
-            <input
-              type="text"
-              placeholder="Enter new comment title"
-              value={newComment?.title ?? ""}
-              onChange={(e) => setNewComment({ ...newComment, title: e.target.value})}
-              className="outline-none p-3 text-base sm:text-lg text-slate-900 flex-1"
-            />
-            <textarea
-              placeholder="Enter new comment description"
-              value={newComment?.description ?? ""}
-              onChange={(e) => setNewComment({ ...newComment, description: e.target.value})}
-              className="outline-none p-3 text-base sm:text-lg text-slate-900 flex-1"
-            />
+          <div className="flex w-full items-stretch rounded-md">
             <button
-              onClick={handleAddComment}
-              className="w-fit px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white font-medium text-base duration-300 hover:opacity-40"
+            onClick={handleAddButtonClick}
+            className="max-h-10 py-1 px-2 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
             >
-              ADD
-            </button>
+            ADD COMMENT
+          </button>
           </div>
         </>
       )}
@@ -199,7 +184,36 @@ function handleDelete(commentKey: string) {
            {/* DESCRIPCION DEL COMENTARIO */}
 
            <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
-           <div className="flex justify-center items-center h-full">
+           <div>
+           {isAdding ? (
+            <div className="w-full h-full flex flex-col  sm:gap-2 overflow-y-auto ">
+            <input
+              type="text"
+              placeholder="Enter new comment title"
+              value={newComment?.title ?? ""}
+              onChange={(e) => setNewComment({ ...newComment, title: e.target.value})}
+              className="bg-slate-900 outline-none rounded-md p-3 text-base sm:text-lg text-white flex-1"
+            />
+            <textarea
+              placeholder="Enter new comment description"
+              value={newComment?.description ?? ""}
+              onChange={(e) => setNewComment({ ...newComment, description: e.target.value})}
+              className="bg-slate-900 outline-none rounded-md text-white p-3 text-base sm:text-lg flex-1"
+            />
+            <div className="flex justify-between">
+                 <button 
+                 className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
+                 onClick={handleAddButtonClick}
+                 >
+                   Cancel
+                 </button>
+                 <button className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
+                 onClick={handleAddComment}>
+                   Save
+                 </button>
+               </div>
+          </div>
+           ) : (<div className="flex justify-center items-center h-full">
            {selectedComment !== null ? comments[selectedComment] ? (
              <div className="w-full h-full flex flex-col  sm:gap-2 overflow-y-auto ">
                <h2 className="text-slate-100 text-xl font-semibold leading-6">
@@ -210,12 +224,12 @@ function handleDelete(commentKey: string) {
                </div>
                <div className="flex justify-between">
                  <button 
-                 className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
+                 className="max-h-10 py-1 px-4 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
                  onClick={handleDelete(selectedComment)}
                  >
                    Delete
                  </button>
-                 <button className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
+                 <button className="max-h-10 py-1 px-4 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase">
                    Save
                  </button>
                </div>
@@ -226,6 +240,7 @@ function handleDelete(commentKey: string) {
                Select comment from the list
              </div>
            ) }
+             </div>)}
              </div>
          </div>
 

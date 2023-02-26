@@ -96,16 +96,22 @@ export default function DescriptionComment(props: TodoCardProps): JSX.Element {
           />
         )}
       </div>
-      <div className="flex justify-between">
-        <button 
-        onClick={handleDelete(todoKey)}
-        className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
-          Delete
-        </button>
-        <button onClick={handleAddEdit(todoKey)}
-        className="max-h-10 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase">
-          Save
-        </button>
+      <div className="flex items-center">
+        {edit === todoKey ? (
+          <i
+            onClick={handleEditTodo}
+            className="fa-solid fa-check px-2 duration-300 hover:scale-125 cursor-pointer"
+          ></i>
+        ) : (
+          <i
+            onClick={handleAddEdit(todoKey)}
+            className="fa-solid fa-pencil px-2 duration-300 hover:rotate-45 cursor-pointer"
+          ></i>
+        )}
+        <i
+          onClick={handleDelete(todoKey)}
+          className="fa-solid fa-trash-can px-2 duration-300 hover:scale-125 cursor-pointer"
+        ></i>
       </div>
     </div>
   );
