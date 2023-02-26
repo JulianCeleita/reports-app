@@ -1,7 +1,6 @@
 import Reports from "components/Reports";
 import Head from "next/head";
-import Login from "../components/Login";
-import UserDashboard from "../components/UserDashboard";
+import Login from "./Login";
 import { AuthContextType, useAuth } from "../context/AuthContext";
 
 export default function Home() {
@@ -14,8 +13,7 @@ export default function Home() {
         <meta name="description" content="Reports and comments app with firebase, typescript, nextjs and tailwind" />
         <link rel="icon" href="/icon.ico" />
       </Head>
-      {!currentUser && <Login />}{/* 
-      {currentUser && <UserDashboard />} */}
+      {!currentUser && <Login />}
       {currentUser && <Reports/>}
     </>
   );

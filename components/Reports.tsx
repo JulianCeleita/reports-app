@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { reports, comments } from "../database";
 import { useAuth } from "context/AuthContext";
 import { deleteField, doc, setDoc } from 'firebase/firestore';
+import { useState } from "react";
+import { reports } from "../database";
 import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
+import IframeGrid from './IframeGrid';
+import ReportList from "./ReportList";
 
 export interface CommentProps {
   children: React.ReactNode;
@@ -21,7 +23,7 @@ function Reports(): JSX.Element {
   const { comments, setComments, loading } = useFetchComments();
   const [newComment, setNewComment] = useState<{ title: string, description: string } | null>(null);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
-  const [selectedComment, setSelectedComment] = useState<string | null>(null);
+  const [selectedComment, setSelectedComment] = useState<string | null | boolean>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [edit, setEdit] = useState<string | any>(null);
   const [edittedValue, setEdittedValue] = useState<string>("");
@@ -56,6 +58,7 @@ function Reports(): JSX.Element {
       },
       { merge: true }
     );
+    setIsAdding(!isAdding)
     setNewComment(null);
   }
 
@@ -122,43 +125,16 @@ async function handleEditComment() {
       <div className="flex-1 grid gap-2 grid-flow-row-dense lg:grid-rows-3 lg:grid-cols-4 md:grid-cols-3 md:grid-rows-2">
         {/* LISTA DE REPORTES */}
 
-<div className="bg-slate-800 border-l-2 border-orange-400 rounded-md p-4 lg:row-span-3 lg:col-span-1 md:col-span-1">
-<h2 className="text-slate-100 text-xl mb-4 font-semibold leading-6">
-  Reports
-</h2>
-<div className="text-slate-200 flex flex-col">
-  {reports.map((report) => (
-    <button
-      className={`text-left my-1 duration-300 hover:bg-slate-700 cursor-pointer select-none ${
-        report.id === selectedReportId ? "text-orange-500" : ""
-      }`}
-      key={report.id}
-      onClick={() => handleReportClick(report.id)}
-    >
-      {report.name}
-    </button>
-  ))}
-</div>
-</div>
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md p-4 lg:row-span-3 lg:col-span-1 md:col-span-1">
+        <ReportList selectedReportId={selectedReportId} handleReportClick={handleReportClick} />
+        </div>
 
         {/* IFRAME HERE */}
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
-          {selectedReportId !== null ? (
-            <iframe
-              className="bg-slate-400 h-full rounded-md"
-              srcDoc={
-                reports.find((report) => report.id === selectedReportId)?.text
-              }
-            />
-          ) : (
-            <div className="text-slate-100 text-lg font-semibold text-center">
-              Select comment from the list
-            </div>
-          )}
+          <IframeGrid selectedReportId={selectedReportId} reports={reports} />
         </div>
         
-
 
       {/* COMMENTS LIST  */}
 
@@ -186,7 +162,8 @@ async function handleEditComment() {
                 onClick={(e)=>{
                   setSelectedComment(commentKey);
                   setEdit(commentKey);
-                  setEdittedValue(comments[commentKey])
+                  setEdittedValue(comments[commentKey]);
+                  setIsAdding(false);
                 }}
               >
                 {comments[commentKey].title}
@@ -198,7 +175,10 @@ async function handleEditComment() {
 
           <div className="flex w-full items-stretch rounded-md">
             <button
-            onClick={handleAddButtonClick}
+            onClick={()=> {
+              handleAddButtonClick();
+              setSelectedComment(false)
+            }}
             className="max-h-10 py-1 px-2 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
             >
             ADD COMMENT
@@ -231,12 +211,19 @@ async function handleEditComment() {
             <div className="flex justify-between">
                  <button 
                  className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
-                 onClick={handleAddButtonClick}
+                 onClick={()=> {
+                  handleAddButtonClick();
+                  setSelectedComment(null);
+                }}
                  >
                    Cancel
                  </button>
                  <button className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
-                 onClick={handleAddComment}>
+                 onClick={()=> {
+                  handleAddComment(null);
+                  setNewComment(null);                  
+                  setSelectedComment(null);
+                 }}>
                    Save
                  </button>
                </div>
@@ -255,7 +242,7 @@ async function handleEditComment() {
                value={edittedValue?.description || comments[selectedComment].description}
                onChange={(e)=> setEdittedValue((prevState)=> ({
                 ...prevState,
-                description: e.target.value,
+                description: e.target.value || "",
               }))}
               />              
                <div className="flex justify-between">
