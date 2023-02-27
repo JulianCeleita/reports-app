@@ -1,4 +1,4 @@
-import { reports } from "database";
+import { reports } from "../../database/reportsData";
 
 interface ReportListProps {
   selectedReportId: number | null;
