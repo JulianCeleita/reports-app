@@ -1,5 +1,4 @@
 import { reports } from "database";
-import useState from "react";
 
 interface ReportListProps {
   selectedReportId: number | null;

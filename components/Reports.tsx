@@ -1,30 +1,20 @@
-import { useAuth } from "context/AuthContext";
-import { deleteField, doc, setDoc } from 'firebase/firestore';
 import { useState } from "react";
 import { reports } from "../database";
-import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
+import CommentList from "./comments/CommentList";
 import IframeGrid from './IframeGrid';
 import ReportList from "./ReportList";
-
-export interface CommentProps {
-  children: React.ReactNode;
-  edit: string | null;
-  handleAddEdit: (key: string) => () => void;
-  edittedValue: string;
-  setEdittedValue: React.Dispatch<React.SetStateAction<string>>;
-  commentKey: string;
-  handleEditComment: () => void;
-  handleDelete: (key: string) => () => void;
-}
+import { useAuth } from "context/AuthContext";
+import { deleteField, doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 function Reports(): JSX.Element {
   const { currentUser } = useAuth();
   const { comments, setComments, loading } = useFetchComments();
   const [newComment, setNewComment] = useState<{ title: string, description: string } | null>(null);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
-  const [selectedComment, setSelectedComment] = useState<string | null | boolean>(null);
-  const [isAdding, setIsAdding] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
   const [edit, setEdit] = useState<string | any>(null);
   const [edittedValue, setEdittedValue] = useState<string>("");
   
@@ -33,7 +23,7 @@ function Reports(): JSX.Element {
   const handleReportClick = (reportId: number) => {
     setSelectedReportId(reportId);
   };
-  
+
   // AGREGAR COMENTARIOS A LA LISTA
 
   async function handleAddComment() {
@@ -44,7 +34,7 @@ function Reports(): JSX.Element {
       return;
     }
     const newKey =
-    comments === null || Object.keys(comments).length === 0
+      comments === null || Object.keys(comments).length === 0
         ? 1
         : Math.max(...Object.keys(comments).map(Number)) + 1;
     setComments({ ...comments, [newKey]: newComment });
@@ -58,7 +48,7 @@ function Reports(): JSX.Element {
       },
       { merge: true }
     );
-    setIsAdding(!isAdding)
+    setIsAdding(!isAdding);
     setNewComment(null);
   }
 
@@ -66,56 +56,57 @@ function Reports(): JSX.Element {
 
   const handleAddButtonClick = () => {
     setIsAdding(!isAdding);
-    setNewComment(null)
-  }
+    setNewComment(null);
+  };
 
-  // DELETE COMMENTS OF THE LIST
-
-function handleDelete(commentKey: string) {
-  return async () => {
+  // EDIT COMMENT OF THE LIST
+  async function handleEditComment() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
-    const tempObj = { ...comments };
-    delete tempObj[commentKey];
-
-    setComments(tempObj);
+    if (!edittedValue?.title || !edittedValue?.description) {
+      return;
+    }
+    const newKey = edit;
+    setComments({ ...comments, [newKey]: edittedValue });
     const userRef = doc(db, "users", currentUser.uid);
     await setDoc(
       userRef,
       {
         comments: {
-          [commentKey]: deleteField(),
+          [newKey]: edittedValue,
         },
       },
       { merge: true }
     );
-    setSelectedComment(null);
-  };
-}
+    setEdit(null);
+    setEdittedValue("");
+  }
 
-async function handleEditComment() {
-  if (!currentUser) {
-    return <div>Loading...</div>;
+  // DELETE COMMENTS OF THE LIST
+
+  function handleDelete(commentKey: string) {
+    return async () => {
+      if (!currentUser) {
+        return <div>Loading...</div>;
+      }
+      const tempObj = { ...comments };
+      delete tempObj[commentKey];
+
+      setComments(tempObj);
+      const userRef = doc(db, "users", currentUser.uid);
+      await setDoc(
+        userRef,
+        {
+          comments: {
+            [commentKey]: deleteField(),
+          },
+        },
+        { merge: true }
+      );
+      setSelectedComment(null);
+    };
   }
-  if (!edittedValue?.title || !edittedValue?.description) {
-    return;
-  }
-  const newKey = edit;
-  setComments({ ...comments, [newKey]: edittedValue });
-  const userRef = doc(db, "users", currentUser.uid);
-  await setDoc(
-    userRef,
-    {
-      comments: {
-        [newKey]: edittedValue,
-      },
-    },
-    { merge: true }
-  );
-  setEdit(null);
-  setEdittedValue("");
-}
 
 
   // VISUAL ZONE
@@ -139,54 +130,17 @@ async function handleEditComment() {
       {/* COMMENTS LIST  */}
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
-      <h2 className="text-slate-100 mb-4 text-xl font-semibold leading-6">
-        Comments
-      </h2>
-
-
-      {loading && (
-        <div className="grid place-items-center">
-          <i className="fa-solid fa-spinner animate-spin"></i>
+          <CommentList 
+          comments={comments}
+          loading={loading}    
+          setIsAdding={setIsAdding}
+          setSelectedComment={setSelectedComment}
+          setEdit={setEdit}   
+          setEdittedValue={setEdittedValue}
+          selectedComment={selectedComment}
+          handleAddButtonClick={handleAddButtonClick}
+          />
         </div>
-      )}
-      {!loading && (
-        <>
-          {Object.keys(comments).map((commentKey, i) => {
-            return (
-              <button
-                className={`text-left my-1 duration-300 hover:bg-slate-700 cursor-pointer select-none ${
-                  commentKey === selectedComment ? "text-orange-500" : ""
-                }`}
-                key={i}
-                value={commentKey}
-                onClick={(e)=>{
-                  setSelectedComment(commentKey);
-                  setEdit(commentKey);
-                  setEdittedValue(comments[commentKey]);
-                  setIsAdding(false);
-                }}
-              >
-                {comments[commentKey].title}
-              </button>
-            );
-          })}
-
-          {/* NEW BUTTON TO ADD COMMENTS */}
-
-          <div className="flex w-full items-stretch rounded-md">
-            <button
-            onClick={()=> {
-              handleAddButtonClick();
-              setSelectedComment(false)
-            }}
-            className="max-h-10 py-1 px-2 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
-            >
-            ADD COMMENT
-          </button>
-          </div>
-        </>
-      )}
-    </div>
 
     
            {/* DESCRIPCION DEL COMENTARIO */}
