@@ -1,6 +1,6 @@
-import Reports from "components/Reports";
+import Reports from "components/Dashboard";
 import Head from "next/head";
-import Login from "./Login";
+import Login from "../components/Login";
 import { AuthContextType, useAuth } from "../context/AuthContext";
 
 export default function Home() {

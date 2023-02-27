@@ -1,0 +1,187 @@
+import { useAuth } from "context/AuthContext";
+import { deleteField, doc, setDoc } from "firebase/firestore";
+import { useState } from "react";
+import { reports } from "../database/reportsData";
+import { db } from "../firebase";
+import useFetchComments from "../hooks/fetchComments";
+import { AddComment, CommentList, EditComment } from "./comments";
+import { IframeGrid, ReportList } from "./reports";
+
+function Dashboard(): JSX.Element {
+  const { currentUser } = useAuth();
+  const { comments, setComments, loading } = useFetchComments();
+  const [newComment, setNewComment] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [selectedComment, setSelectedComment] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [edit, setEdit] = useState<string | any>(null);
+  const [edittedValue, setEdittedValue] = useState<any>("");
+
+  // AGREGAR REPORTES A LA LISTA
+
+  const handleReportClick = (reportId: number) => {
+    setSelectedReportId(reportId);
+  };
+
+  // AGREGAR COMENTARIOS A LA LISTA
+
+  async function handleAddComment() {
+    if (!currentUser) {
+      return <div>Loading...</div>;
+    }
+    if (!newComment?.title || !newComment?.description) {
+      return;
+    }
+    const newKey =
+      comments === null || Object.keys(comments).length === 0
+        ? 1
+        : Math.max(...Object.keys(comments).map(Number)) + 1;
+    setComments({ ...comments, [newKey]: newComment });
+    const userRef = doc(db, "users", currentUser.uid);
+    await setDoc(
+      userRef,
+      {
+        comments: {
+          [newKey]: newComment,
+        },
+      },
+      { merge: true }
+    );
+    setIsAdding(!isAdding);
+    setNewComment(null);
+  }
+
+  // CAMBIAR ENTRE LOS INPUTS Y EL EDIT
+
+  const handleAddButtonClick = () => {
+    setIsAdding(!isAdding);
+    setNewComment(null);
+  };
+
+  // EDIT COMMENT OF THE LIST
+
+  async function handleEditComment() {
+    if (!currentUser) {
+      return <div>Loading...</div>;
+    }
+    if (!edittedValue?.title || !edittedValue?.description) {
+      return;
+    }
+    const newKey = edit;
+    setComments({ ...comments, [newKey]: edittedValue });
+    const userRef = doc(db, "users", currentUser.uid);
+    await setDoc(
+      userRef,
+      {
+        comments: {
+          [newKey]: edittedValue,
+        },
+      },
+      { merge: true }
+    );
+    setEdit(null);
+    setEdittedValue("");
+  }
+
+  // DELETE COMMENTS OF THE LIST
+
+  function handleDelete(commentKey: string) {
+    return async () => {
+      if (!currentUser) {
+        return <div>Loading...</div>;
+      }
+      const tempObj = { ...comments };
+      delete tempObj[commentKey];
+
+      setComments(tempObj);
+      const userRef = doc(db, "users", currentUser.uid);
+      await setDoc(
+        userRef,
+        {
+          comments: {
+            [commentKey]: deleteField(),
+          },
+        },
+        { merge: true }
+      );
+      setSelectedComment(null);
+    };
+  }
+
+  return (
+    <div className="h-full max-h-screen flex">
+      <div className="flex-1 grid gap-2 grid-flow-row-dense lg:grid-rows-3 lg:grid-cols-4 md:grid-cols-3 md:grid-rows-2">
+        {/* REPORTS LIST */}
+
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md p-4 lg:row-span-3 lg:col-span-1 md:col-span-1">
+          <ReportList
+            selectedReportId={selectedReportId}
+            handleReportClick={handleReportClick}
+          />
+        </div>
+
+        {/* IFRAME */}
+
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
+          <IframeGrid selectedReportId={selectedReportId} reports={reports} />
+        </div>
+
+        {/* COMMENTS LIST  */}
+
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
+          <CommentList
+            comments={comments}
+            loading={loading}
+            setIsAdding={setIsAdding}
+            setSelectedComment={setSelectedComment}
+            setEdit={setEdit}
+            setEdittedValue={setEdittedValue}
+            selectedComment={selectedComment}
+            handleAddButtonClick={handleAddButtonClick}
+          />
+        </div>
+
+        {/* DESCRIPTION */}
+
+        <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
+          <div>
+            {isAdding ? (
+              <AddComment
+                newComment={newComment}
+                setNewComment={setNewComment}
+                handleAddButtonClick={handleAddButtonClick}
+                setSelectedComment={setSelectedComment}
+                handleAddComment={handleAddComment}
+              />
+            ) : (
+              <div className="flex justify-center items-center h-full">
+                {selectedComment !== null ? (
+                  comments[selectedComment] ? (
+                    <EditComment
+                      comments={comments}
+                      edittedValue={edittedValue}
+                      setEdittedValue={setEdittedValue}
+                      selectedComment={selectedComment}
+                      handleDelete={handleDelete}
+                      handleEditComment={handleEditComment}
+                      setEdit={setEdit}
+                      setSelectedComment={setSelectedComment}
+                    />
+                  ) : null
+                ) : (
+                  <div className="text-slate-100 text-lg font-semibold text-center">
+                    Select comment from the list
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+export default Dashboard;

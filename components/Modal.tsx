@@ -9,7 +9,7 @@ interface ModalProps {
 export default function Modal(props: ModalProps): JSX.Element | null {
   const { setOpenModal } = props;
   const [_document, set_document] = useState<Document | null>(null);
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
 
   useEffect(() => {
     set_document(document);
@@ -22,10 +22,9 @@ export default function Modal(props: ModalProps): JSX.Element | null {
   return ReactDom.createPortal(
     <div className="fixed inset-0 bg-slate-200 bg-opacity-50 text-white text-lg sm:text-xl flex flex-col z-20">
       <div className="flex items-center justify-between border-b border-solid bg-slate-900 border-white p-4">
-        <h1 className="text-3xl sm:text-6xl select-none">
-          LOGO
-        </h1>
+        <h1 className="text-3xl sm:text-6xl select-none">LOGO</h1>
         <div className="flex items-center">
+          <div className="pr-4 underline">{currentUser?.email}</div>
           <h2
             onClick={() => {
               logout();
