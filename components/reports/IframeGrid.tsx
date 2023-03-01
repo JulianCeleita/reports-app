@@ -1,13 +1,12 @@
-
-function IframeGrid( props: any): JSX.Element {
-  const {reports, setSelectedReport, selectedReport} = props;
+function IframeGrid(props: any): JSX.Element {
+  const { reports, setSelectedReport, selectedReport } = props;
 
   return (
     <>
       {setSelectedReport !== null ? (
         <iframe
           className="bg-slate-400 h-full rounded-md"
-          srcDoc={reports[selectedReport].title}
+          srcDoc={reports[selectedReport].docUrl}
         />
       ) : (
         <div className="text-slate-100 text-lg font-semibold text-center">
