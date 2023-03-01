@@ -1,22 +1,13 @@
-interface IframeProps {
-  selectedReportId: number | null;
-  reports: {
-    id: number;
-    name: string;
-    text: string;
-  }[];
-}
 
-function IframeGrid({ selectedReportId, reports }: IframeProps): JSX.Element {
-  const reportText = reports.find(
-    (report) => report.id === selectedReportId
-  )?.text;
+function IframeGrid( props: any): JSX.Element {
+  const {reports, setSelectedReport, selectedReport} = props;
+
   return (
     <>
-      {selectedReportId !== null ? (
+      {setSelectedReport !== null ? (
         <iframe
           className="bg-slate-400 h-full rounded-md"
-          srcDoc={reportText}
+          srcDoc={reports[selectedReport].title}
         />
       ) : (
         <div className="text-slate-100 text-lg font-semibold text-center">

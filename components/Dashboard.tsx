@@ -1,9 +1,10 @@
 import { useAuth } from "context/AuthContext";
 import { deleteField, doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
-import { reports } from "../database/reportsData";
+import { reports } from '../database/reportsData';
 import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
+import useFetchReports from "../hooks/fetchReports";
 import { AddComment, CommentList, EditComment } from "./comments";
 import { IframeGrid, ReportList } from "./reports";
 
@@ -14,17 +15,62 @@ function Dashboard(): JSX.Element {
     title: string;
     description: string;
   } | null>(null);
-  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
   const [selectedComment, setSelectedComment] = useState<any>(null);
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const [edit, setEdit] = useState<string | any>(null);
   const [edittedValue, setEdittedValue] = useState<any>("");
+  const { reports, setReports } = useFetchReports();
+  const [newReport, setNewReport] = useState<{
+    title: string;
+    docUrl: string;
+    comments: [];
+  } | null>(null);
 
   // AGREGAR REPORTES A LA LISTA
 
-  const handleReportClick = (reportId: number) => {
-    setSelectedReportId(reportId);
-  };
+  async function handleAddReport() {
+    if (!currentUser) {
+      return <div>Loading...</div>;
+    }
+    if (!newReport?.title || !newReport?.docUrl) {
+      return;
+    }
+    const newKey =
+      reports === null || Object.keys(reports).length === 0
+        ? 1
+        : Math.max(...Object.keys(reports).map(Number)) + 1;
+    const comments = newReport.comments
+    ? newReport.comments.map((comment: CommentType) => ({
+        id: comment.id,
+        title:comment.title,
+        description: comment.description,
+    }))
+    : [];
+    setReports({ 
+        ...reports, 
+        [newKey]: {
+            title: newReport.title,
+            docUrl: newReport.docUrl,
+            comments: []
+        }
+    });
+    const userRef = doc(db, "users", currentUser.uid);
+    await setDoc(
+      userRef,
+      {
+        reports: {
+          [newKey]: {
+            title: newReport.title,
+            docUrl: newReport.docUrl,
+            comments: []
+          },
+        },
+      },
+      { merge: true }
+    );
+    setNewReport(null);
+  }
 
   // AGREGAR COMENTARIOS A LA LISTA
 
@@ -118,20 +164,28 @@ function Dashboard(): JSX.Element {
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md p-4 lg:row-span-3 lg:col-span-1 md:col-span-1">
           <ReportList
-            selectedReportId={selectedReportId}
-            handleReportClick={handleReportClick}
+          reports={reports}
+          loading={loading}
+          setSelectedReport={setSelectedReport}
+          selectedReport={selectedReport}
+          newReport={setNewReport}
+          setNewReport={setNewReport}
+          handleAddReport={handleAddReport}
           />
         </div>
 
         {/* IFRAME */}
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
-          <IframeGrid selectedReportId={selectedReportId} reports={reports} />
+          <IframeGrid 
+            selectedReport={selectedReport} 
+            setSelectedReport={selectedReport} 
+            reports={reports} />
         </div>
 
         {/* COMMENTS LIST  */}
 
-        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
+        {/* <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
           <CommentList
             comments={comments}
             loading={loading}
@@ -142,11 +196,11 @@ function Dashboard(): JSX.Element {
             selectedComment={selectedComment}
             handleAddButtonClick={handleAddButtonClick}
           />
-        </div>
+        </div> */}
 
         {/* DESCRIPTION */}
 
-        <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
+        {/* <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
           <div>
             {isAdding ? (
               <AddComment
@@ -179,7 +233,7 @@ function Dashboard(): JSX.Element {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
