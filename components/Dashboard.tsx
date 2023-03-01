@@ -1,7 +1,6 @@
 import { useAuth } from "context/AuthContext";
 import { deleteField, doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
-import { reports } from '../database/reportsData';
 import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
 import useFetchReports from "../hooks/fetchReports";
