@@ -19,57 +19,7 @@ function Dashboard(): JSX.Element {
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const [edit, setEdit] = useState<string | any>(null);
   const [edittedValue, setEdittedValue] = useState<any>("");
-  const { reports, setReports } = useFetchReports();
-  const [newReport, setNewReport] = useState<{
-    title: string;
-    docUrl: string;
-    comments: [];
-  } | null>(null);
-
-  // AGREGAR REPORTES A LA LISTA
-
-  async function handleAddReport() {
-    if (!currentUser) {
-      return <div>Loading...</div>;
-    }
-    if (!newReport?.title || !newReport?.docUrl) {
-      return;
-    }
-    const newKey =
-      reports === null || Object.keys(reports).length === 0
-        ? 1
-        : Math.max(...Object.keys(reports).map(Number)) + 1;
-    const comments = newReport.comments
-    ? newReport.comments.map((comment: CommentType) => ({
-        id: comment.id,
-        title:comment.title,
-        description: comment.description,
-    }))
-    : [];
-    setReports({ 
-        ...reports, 
-        [newKey]: {
-            title: newReport.title,
-            docUrl: newReport.docUrl,
-            comments: []
-        }
-    });
-    const userRef = doc(db, "users", currentUser.uid);
-    await setDoc(
-      userRef,
-      {
-        reports: {
-          [newKey]: {
-            title: newReport.title,
-            docUrl: newReport.docUrl,
-            comments: []
-          },
-        },
-      },
-      { merge: true }
-    );
-    setNewReport(null);
-  }
+  const { reports } = useFetchReports();
 
   // AGREGAR COMENTARIOS A LA LISTA
 
@@ -198,9 +148,6 @@ function Dashboard(): JSX.Element {
           loading={loading} 
           setSelectedReport={setSelectedReport}
           selectedReport={selectedReport}
-          newReport={setNewReport}
-          setNewReport={setNewReport}
-          handleAddReport={handleAddReport}
           />
         </div>
 
