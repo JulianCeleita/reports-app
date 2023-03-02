@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 
-interface CommentType {
+export interface CommentType {
   id: string;
   title: string;
   description: string;

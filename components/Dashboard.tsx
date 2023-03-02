@@ -1,9 +1,9 @@
 import { useAuth } from "context/AuthContext";
-import { deleteField, doc, setDoc } from "firebase/firestore";
+import { addDoc, deleteField, doc, setDoc, collection, updateDoc } from 'firebase/firestore';
 import { useState } from "react";
 import { db } from "../firebase";
 import useFetchComments from "../hooks/fetchComments";
-import useFetchReports from "../hooks/fetchReports";
+import useFetchReports, {CommentType} from "../hooks/fetchReports";
 import { AddComment, CommentList, EditComment } from "./comments";
 import { IframeGrid, ReportList } from "./reports";
 
@@ -73,7 +73,37 @@ function Dashboard(): JSX.Element {
 
   // AGREGAR COMENTARIOS A LA LISTA
 
-  async function handleAddComment() {
+  async function handleAddComment(){
+    if (!currentUser) {
+      return <div>Loading...</div>
+    }
+    if (!newComment?.title || !newComment?.description){
+      return;
+    }
+    try {
+      const commentRef = await addDoc(collection(db, "comments"), {
+      title: newComment.title,
+      description: newComment.description,
+    })
+    const comment = {
+      ...newComment,
+    }
+    setComments({ ...comments, [commentRef.id]: comment })
+    const userRef = doc(db, "user", currentUser.uid);
+    await updateDoc (userRef, {
+      comments: {
+        [commentRef.id]: comment,
+      },
+    });
+    setIsAdding(false);
+    setNewComment(null);
+    setSelectedComment(commentRef.id);
+  } catch (error) {
+    console.log("Error adding document: ", error)
+  }
+  }
+
+/*   async function handleAddComment() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
@@ -97,7 +127,7 @@ function Dashboard(): JSX.Element {
     );
     setIsAdding(!isAdding);
     setNewComment(null);
-  }
+  } */
 
   // CAMBIAR ENTRE LOS INPUTS Y EL EDIT
 
@@ -155,6 +185,7 @@ function Dashboard(): JSX.Element {
       setSelectedComment(null);
     };
   }
+  console.log(reports)
 
   return (
     <div className="h-full max-h-screen flex">
@@ -184,9 +215,11 @@ function Dashboard(): JSX.Element {
 
         {/* COMMENTS LIST  */}
 
-        {/* <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
+        <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
           <CommentList
-            comments={comments}
+            reports={reports}
+            setSelectedReport={selectedReport}
+            selectedReport={selectedReport}
             loading={loading}
             setIsAdding={setIsAdding}
             setSelectedComment={setSelectedComment}
@@ -195,11 +228,11 @@ function Dashboard(): JSX.Element {
             selectedComment={selectedComment}
             handleAddButtonClick={handleAddButtonClick}
           />
-        </div> */}
+        </div>
 
         {/* DESCRIPTION */}
 
-        {/* <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
+        <div className="grid grid-cols-1 place-items-stretch bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:col-span-3 md:col-span-2 md:row-span-1">
           <div>
             {isAdding ? (
               <AddComment
@@ -232,7 +265,7 @@ function Dashboard(): JSX.Element {
               </div>
             )}
           </div>
-        </div> */}
+        </div>
       </div>
     </div>
   );
