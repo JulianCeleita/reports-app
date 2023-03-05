@@ -40,7 +40,7 @@ function AddComment(props: any): JSX.Element {
           <button
             className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
             onClick={() => {
-              handleAddComment(null);
+              handleAddComment();
               setNewComment(null);
               setSelectedComment(null);
             }}

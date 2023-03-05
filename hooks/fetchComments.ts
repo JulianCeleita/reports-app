@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+/* import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
@@ -47,3 +47,4 @@ export default function useFetchComments(): FetchCommentReturnType {
 
   return { loading, error, comments, setComments };
 }
+ */

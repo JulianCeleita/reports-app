@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 
 export interface CommentType {
-  id: string;
+  id: number;
   title: string;
   description: string;
 }
@@ -12,7 +12,7 @@ export interface CommentType {
 interface ReportType {
     title: string;
     docUrl: string;
-    comments?: CommentType[];
+    comments: CommentType[];
 }
 
 interface FetchReportReturnType {
@@ -25,7 +25,7 @@ interface FetchReportReturnType {
 export default function useFetchReports(): FetchReportReturnType {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [reports, setReports] = useState<ReportType[] | null>(null);
+  const [reports, setReports] = useState<ReportType[]>([]);
 
   const { currentUser } = useAuth();
 

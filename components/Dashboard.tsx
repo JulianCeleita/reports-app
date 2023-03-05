@@ -1,57 +1,67 @@
 import { useAuth } from "context/AuthContext";
-import { addDoc, deleteField, doc, setDoc, collection, updateDoc } from 'firebase/firestore';
-import { useState } from "react";
-import { db } from "../firebase";
-import useFetchComments from "../hooks/fetchComments";
+import { addDoc, deleteField, doc, setDoc, collection, updateDoc, getDoc } from 'firebase/firestore';
+import { useEffect, useState } from "react";
+import { db } from "../firebase";/* 
+import useFetchComments from "../hooks/fetchComments"; */
 import useFetchReports, {CommentType} from "../hooks/fetchReports";
 import { AddComment, CommentList, EditComment } from "./comments";
 import { IframeGrid, ReportList } from "./reports";
 
 function Dashboard(): JSX.Element {
+  const [selectedReport, setSelectedReport] = useState<number>(0);
+  const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [newComment, setNewComment] = useState<CommentType | null>(null);
+
   const { currentUser } = useAuth();
-  const { comments, setComments, loading } = useFetchComments();
-  const [newComment, setNewComment] = useState<{
+  const { reports, setReports, loading } = useFetchReports();/* 
+  const [comments, setComments] = useState(null) */
+/*   const [newComment, setNewComment] = useState<{
     title: string;
     description: string;
-  } | null>(null);
-  const [selectedReport, setSelectedReport] = useState<any>(null);
-  const [selectedComment, setSelectedComment] = useState<any>(null);
-  const [isAdding, setIsAdding] = useState<boolean>(false);
+  } | null>(null); */
+ /*  const [selectedComment, setSelectedComment] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState<boolean>(false); */
   const [edit, setEdit] = useState<string | any>(null);
   const [edittedValue, setEdittedValue] = useState<any>("");
-  const { reports } = useFetchReports();
+/* 
+  const handleSelectReport = (index: number) => {
+    setSelectedReport(index);
+    setComments(reports[index]?.comments || []);
+  }; */
 
   // AGREGAR COMENTARIOS A LA LISTA
 
-  async function handleAddComment(){
-    if (!currentUser) {
-      return <div>Loading...</div>
-    }
-    if (!newComment?.title || !newComment?.description){
-      return;
-    }
-    try {
-      const commentRef = await addDoc(collection(db, "comments"), {
-      title: newComment.title,
-      description: newComment.description,
-    })
-    const comment = {
+  async function handleAddComment() {
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+  if (!newComment?.title || !newComment?.description) {
+    return;
+  }
+  const userRef = doc(db, "users", currentUser.uid);
+  const userSnapshot = await getDoc(userRef);
+  if (userSnapshot.exists()) {
+    const userData = userSnapshot.data();
+    const reportData = userData.reports[selectedReport];
+    const comments = reportData.comments || [];
+    const newCommentData = {
       ...newComment,
-    }
-    setComments({ ...comments, [commentRef.id]: comment })
-    const userRef = doc(db, "user", currentUser.uid);
-    await updateDoc (userRef, {
-      comments: {
-        [commentRef.id]: comment,
-      },
+    };
+    newCommentData.id = comments.length === 0 ? 1 : Math.max(...comments.map((comment: CommentType) => comment.id)) + 1;
+    const updatedComments = [...comments, newCommentData];
+    await updateDoc(userRef, {
+      [`reports.${selectedReport}.comments`]: updatedComments,
     });
+    const updatedReports = reports;
+    updatedReports[selectedReport] = { ...reportData, comments: updatedComments };
+    setReports(updatedReports);
+    setSelectedComment(newComment);
     setIsAdding(false);
-    setNewComment(null);
-    setSelectedComment(commentRef.id);
-  } catch (error) {
-    console.log("Error adding document: ", error)
+    setNewComment(null)
   }
-  }
+}
+
 
 /*   async function handleAddComment() {
     if (!currentUser) {
@@ -88,7 +98,7 @@ function Dashboard(): JSX.Element {
 
   // EDIT COMMENT OF THE LIST
 
-  async function handleEditComment() {
+  /* async function handleEditComment() {
     if (!currentUser) {
       return <div>Loading...</div>;
     }
@@ -110,10 +120,10 @@ function Dashboard(): JSX.Element {
     setEdit(null);
     setEdittedValue("");
   }
-
+ */
   // DELETE COMMENTS OF THE LIST
 
-  function handleDelete(commentKey: string) {
+  /* function handleDelete(commentKey: string) {
     return async () => {
       if (!currentUser) {
         return <div>Loading...</div>;
@@ -135,7 +145,7 @@ function Dashboard(): JSX.Element {
       setSelectedComment(null);
     };
   }
-  console.log(reports)
+  console.log(reports) */
 
   return (
     <div className="h-full max-h-screen flex">
@@ -164,6 +174,7 @@ function Dashboard(): JSX.Element {
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
           <CommentList
+          /* comments={comments} */
             reports={reports}
             setSelectedReport={selectedReport}
             selectedReport={selectedReport}
@@ -191,7 +202,7 @@ function Dashboard(): JSX.Element {
               />
             ) : (
               <div className="flex justify-center items-center h-full">
-                {selectedComment !== null ? (
+                {/* {selectedComment !== null ? (
                   comments[selectedComment] ? (
                     <EditComment
                       comments={comments}
@@ -208,7 +219,7 @@ function Dashboard(): JSX.Element {
                   <div className="text-slate-100 text-lg font-semibold text-center">
                     Select comment from the list
                   </div>
-                )}
+                )} */}
               </div>
             )}
           </div>
