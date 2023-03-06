@@ -1,5 +1,5 @@
 function ReportList(props: any): JSX.Element {
-  const { reports, loading, setSelectedReport, selectedReport } = props;
+  const { reports, loading, setSelectedReport, selectedReport, setSelectedComment } = props;
 
   return (
     <>
@@ -22,7 +22,10 @@ function ReportList(props: any): JSX.Element {
                 }`}
                 key={i}
                 value={reportKey}
-                onClick={() => setSelectedReport(reportKey)}
+                onClick={() => {
+                  setSelectedReport(reportKey)
+                  setSelectedComment(null)
+                }}
               >
                 {reports[reportKey].title}
               </button>

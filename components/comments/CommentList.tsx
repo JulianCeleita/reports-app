@@ -6,11 +6,12 @@ function CommentList(props: any): JSX.Element {
     selectedReport,
     loading,
     setIsAdding,
+    selectedComment,
     setSelectedComment,
     setEdit,
     setEdittedValue,
-    selectedComment,
     handleAddButtonClick,
+    handleDeleteComment,
   } = props;
 
   return (
@@ -35,10 +36,10 @@ function CommentList(props: any): JSX.Element {
                         comment.id === selectedComment ? "text-orange-500" : ""
                       }`}
                       key={comment.id}
-                      onClick={(e) => {
+                      onClick={() => {
                         setSelectedComment(comment.id);
-                        setEdit(comment.id);
-                        setEdittedValue(comments[comment.id]);
+                        setEdit(selectedComment);
+                        setEdittedValue(selectedComment);
                         setIsAdding(false);
                       }}
                     >
@@ -51,7 +52,7 @@ function CommentList(props: any): JSX.Element {
                       <button
                         onClick={() => {
                           handleAddButtonClick();
-                          setSelectedComment(false);
+                          setSelectedComment(null);
                         }}
                         className="max-h-10 py-1 px-2 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
                       >
