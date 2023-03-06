@@ -1,11 +1,6 @@
 function AddComment(props: any): JSX.Element {
-  const {
-    newComment,
-    setNewComment,
-    handleAddButtonClick,
-    setSelectedComment,
-    handleAddComment,
-  } = props;
+  const { newComment, setNewComment, handleAddButtonClick, handleAddComment } =
+    props;
 
   return (
     <>
@@ -32,7 +27,6 @@ function AddComment(props: any): JSX.Element {
             className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
             onClick={() => {
               handleAddButtonClick();
-              setSelectedComment(null);
             }}
           >
             Cancel
@@ -41,8 +35,6 @@ function AddComment(props: any): JSX.Element {
             className="max-h-10 py-1 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 w-[10ch] border-solid uppercase"
             onClick={() => {
               handleAddComment();
-              setNewComment(null);
-              setSelectedComment(null);
             }}
           >
             Save
