@@ -1,5 +1,6 @@
 function ReportList(props: any): JSX.Element {
-  const { reports, setSelectedReport, selectedReport, setSelectedComment } = props;
+  const { reports, selectedReport, setSelectedReport, setSelectedComment } =
+    props;
 
   return (
     <>

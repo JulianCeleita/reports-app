@@ -1,5 +1,5 @@
 function IframeGrid(props: any): JSX.Element {
-  const { reports, setSelectedReport, selectedReport } = props;
+  const { reports, selectedReport, setSelectedReport } = props;
 
   return (
     <>

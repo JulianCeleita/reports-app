@@ -122,9 +122,8 @@ function Dashboard(): JSX.Element {
         <div className="h-full flex flex-col gap-2 sm:gap-1 bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-3 lg:col-span-1 md:col-span-1">
           <ReportList
           reports={reports}
-          loading={loading} 
-          setSelectedReport={setSelectedReport}
           selectedReport={selectedReport}
+          setSelectedReport={setSelectedReport}
           setSelectedComment={setSelectedComment}
           />
         </div>
@@ -133,9 +132,10 @@ function Dashboard(): JSX.Element {
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md p-4 lg:row-span-2 lg:col-span-2 md:col-span-2 flex flex-col justify-center">
           <IframeGrid 
+            reports={reports}
             selectedReport={selectedReport} 
             setSelectedReport={selectedReport} 
-            reports={reports} />
+             />
         </div>
 
         {/* COMMENTS LIST  */}
@@ -173,15 +173,15 @@ function Dashboard(): JSX.Element {
               <div className="flex justify-center items-center h-full">
                 {selectedComment !== null ? (
                     <EditComment
-                    reports={reports}
-                    selectedReport={selectedReport}
-                      edittedValue={edittedValue}
+                      reports={reports}
+                      selectedReport={selectedReport}
                       setEdit={setEdit}
+                      edittedValue={edittedValue}
                       setEdittedValue={setEdittedValue}
-                      selectedComment={selectedComment}
-                      handleEditComment={handleEditComment}
-                      setSelectedComment={setSelectedComment}
                       handleDeleteComment={handleDeleteComment}
+                      handleEditComment={handleEditComment}
+                      selectedComment={selectedComment}
+                      setSelectedComment={setSelectedComment}
                     />
                 ) : (
                   <div className="text-slate-100 text-lg font-semibold text-center">
