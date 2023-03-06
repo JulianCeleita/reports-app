@@ -1,4 +1,4 @@
-import Reports from "components/Dashboard";
+import Dashboard from "components/Dashboard";
 import Head from "next/head";
 import Login from "../components/Login";
 import { AuthContextType, useAuth } from "../context/AuthContext";
@@ -14,7 +14,7 @@ export default function Home() {
         <link rel="icon" href="/icon.ico" />
       </Head>
       {!currentUser && <Login />}
-      {currentUser && <Reports/>}
+      {currentUser && <Dashboard/>}
     </>
   );
 }

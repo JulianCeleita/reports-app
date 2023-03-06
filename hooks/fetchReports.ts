@@ -10,9 +10,9 @@ export interface CommentType {
 }
 
 interface ReportType {
-    title: string;
-    docUrl: string;
-    comments: CommentType[];
+  title: string;
+  docUrl: string;
+  comments: CommentType[];
 }
 
 interface FetchReportReturnType {
@@ -23,12 +23,12 @@ interface FetchReportReturnType {
 }
 
 export default function useFetchReports(): FetchReportReturnType {
+  const [reports, setReports] = useState<ReportType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [reports, setReports] = useState<ReportType[]>([]);
-
+  
   const { currentUser } = useAuth();
-
+  
   useEffect(() => {
     async function fetchData() {
       try {
@@ -36,8 +36,8 @@ export default function useFetchReports(): FetchReportReturnType {
           const docRef = doc(db, "users", currentUser.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-        setReports(docSnap.data().reports);    
-        } else {
+            setReports(docSnap.data().reports);
+          } else {
             setReports([]);
           }
         }

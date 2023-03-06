@@ -109,6 +109,12 @@ function Dashboard(): JSX.Element {
   }
 
   return (
+  //  <>{loading && (
+  //      <div className="flex flex-1 justify-center items-center h-screen">
+  //        <i className="fa-solid fa-spinner fa-3x animate-spin"></i>
+  //      </div>
+  //    )}
+  //    {!loading && (
     <div className="h-full max-h-screen flex">
       <div className="flex-1 grid gap-2 grid-flow-row-dense lg:grid-rows-3 lg:grid-cols-4 md:grid-cols-3 md:grid-rows-2">
         {/* REPORTS LIST */}
@@ -189,6 +195,8 @@ function Dashboard(): JSX.Element {
         </div>
       </div>
     </div>
+   // )}
+   // </>
   );
 }
 export default Dashboard;
