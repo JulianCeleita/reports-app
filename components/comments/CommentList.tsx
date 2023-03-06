@@ -2,8 +2,8 @@ import { CommentType } from "../../hooks/fetchReports";
 function CommentList(props: any): JSX.Element {
   const {
     reports,
-    setSelectedReport,
     selectedReport,
+    setSelectedReport,
     setIsAdding,
     selectedComment,
     setSelectedComment,
@@ -45,7 +45,7 @@ function CommentList(props: any): JSX.Element {
               }}
               className="max-h-10 py-1 px-2 bg-orange-500 rounded-md text-white font-medium duration-200 hover:scale-105 hover:bg-orange-700 border-solid uppercase"
             >
-              ADD COMMENT
+              NEW COMMENT
             </button>
           </div>
         </>

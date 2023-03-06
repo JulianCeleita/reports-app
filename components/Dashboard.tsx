@@ -8,16 +8,17 @@ import { AddComment, CommentList, EditComment } from "./comments";
 import { IframeGrid, ReportList } from "./reports";
 
 function Dashboard(): JSX.Element {
+  const { currentUser } = useAuth();
+
+  const { reports, loading } = useFetchReports();
+
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const [newComment, setNewComment] = useState<CommentType | null>(null);
-
-  const { currentUser } = useAuth();
-  const { reports, setReports, loading } = useFetchReports();/* 
-  const [comments, setComments] = useState(null) */
-  const [edit, setEdit] = useState<string | any>(null);
+  const [edit, setEdit] = useState<any>(null);
   const [edittedValue, setEdittedValue] = useState<any>("");
+
 
   // AGREGAR COMENTARIOS A LA LISTA
 
@@ -57,7 +58,7 @@ function Dashboard(): JSX.Element {
       const userData = userSnapshot.data();
       const reportData = userData.reports[selectedReport];
       const comments = reportData.comments || [];
-      const updatedComments = comments.filter(comment => comment.id !== selectedComment);
+      const updatedComments = comments.filter((comment:any) => comment.id !== selectedComment);
       await updateDoc(userRef, {
         [`reports.${selectedReport}.comments`]: updatedComments,
       });
@@ -90,7 +91,7 @@ function Dashboard(): JSX.Element {
       const userData = userSnapshot.data();
       const reportData = userData.reports[selectedReport];
       const comments = reportData.comments || [];
-      const updatedComments = comments.map((comment) => {
+      const updatedComments = comments.map((comment:any) => {
         if (comment.id === selectedComment) {
           const {id, ...updatedComment} = edittedValue;
           updatedComment.id = comment.id;
@@ -109,12 +110,12 @@ function Dashboard(): JSX.Element {
   }
 
   return (
-  //  <>{loading && (
-  //      <div className="flex flex-1 justify-center items-center h-screen">
-  //        <i className="fa-solid fa-spinner fa-3x animate-spin"></i>
-  //      </div>
-  //    )}
-  //    {!loading && (
+    <>{loading && (
+        <div className="flex flex-1 justify-center items-center h-screen">
+          <i className="fa-solid fa-spinner fa-3x animate-spin"></i>
+      </div>
+      )}
+      {!loading && (
     <div className="flex flex-1">
       <div className="flex-1 grid gap-2 grid-flow-row-dense lg:grid-rows-3 lg:grid-cols-4 md:grid-cols-3 md:grid-rows-2">
         {/* REPORTS LIST */}
@@ -142,19 +143,15 @@ function Dashboard(): JSX.Element {
 
         <div className="bg-slate-800 border-l-2 border-orange-400 rounded-md shadow-md space-y-2 p-4 lg:row-span-2 lg:col-span-1 md:col-span-1 h-full flex flex-col gap-3 sm:gap-2 ">
           <CommentList
-            /* comments={comments} */
             reports={reports}
-            setReports={setReports}
-            setSelectedReport={selectedReport}
             selectedReport={selectedReport}
-            loading={loading}
+            setSelectedReport={selectedReport}
             setIsAdding={setIsAdding}
+            selectedComment={selectedComment}
+            setSelectedComment={setSelectedComment}
             setEdit={setEdit}
             setEdittedValue={setEdittedValue}
             handleAddButtonClick={handleAddButtonClick}
-            setSelectedComment={setSelectedComment}
-            selectedComment={selectedComment}
-            handleDeleteComment={handleDeleteComment}
           />
         </div>
 
@@ -194,8 +191,8 @@ function Dashboard(): JSX.Element {
         </div>
       </div>
     </div>
-   // )}
-   // </>
+    )}
+    </>
   );
 }
 export default Dashboard;
