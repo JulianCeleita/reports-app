@@ -50,7 +50,7 @@ function CommentList(props: any): JSX.Element {
           </div>
         </>
       ) : (
-        <div className="flex flex-1 justify-center items-center h-screen text-slate-100 text-lg font-semibold text-center">
+        <div className="flex flex-1 justify-center select-none items-center h-screen text-slate-100 text-lg font-semibold text-center">
           Select report from the list
         </div>
       )}

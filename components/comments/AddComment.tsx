@@ -4,7 +4,7 @@ function AddComment(props: any): JSX.Element {
 
   return (
     <>
-      <div className="w-full h-full flex flex-col  sm:gap-2 overflow-y-auto ">
+      <div className="w-full h-full flex flex-col sm:gap-2 ">
         <input
           type="text"
           placeholder="Enter new comment title"

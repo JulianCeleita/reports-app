@@ -18,7 +18,7 @@ function EditComment(props: any): JSX.Element {
   );
 
   return (
-    <div className="w-full h-full flex flex-col  sm:gap-2 overflow-y-auto ">
+    <div className="w-full h-full flex flex-col sm:gap-2">
       <input
         className="bg-slate-900 outline-none rounded-md p-3 text-base sm:text-lg text-white flex-1"
         value={edittedValue?.title || comment?.title}

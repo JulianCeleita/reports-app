@@ -9,7 +9,7 @@ function IframeGrid(props: any): JSX.Element {
           srcDoc={reports[selectedReport].docUrl}
         />
       ) : (
-        <div className="text-slate-100 text-lg font-semibold text-center">
+        <div className="text-slate-100 select-none text-lg font-semibold text-center">
           Select report from the list
         </div>
       )}

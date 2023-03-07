@@ -1,10 +1,10 @@
 import { useAuth } from "context/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
-import { db } from "../firebase";
-import useFetchReports, { CommentType } from "../hooks/fetchReports";
-import { AddComment, CommentList, EditComment } from "./comments";
-import { IframeGrid, ReportList } from "./reports";
+import { db } from "../../firebase";
+import useFetchReports, { CommentType } from "../../hooks/fetchReports";
+import { AddComment, CommentList, EditComment } from "../../components/Comments";
+import { IframeGrid, ReportList } from "../../components/Reports";
 
 function Dashboard(): JSX.Element {
   const { currentUser } = useAuth();
@@ -197,7 +197,7 @@ function Dashboard(): JSX.Element {
                         setSelectedComment={setSelectedComment}
                       />
                     ) : (
-                      <div className="text-slate-100 text-lg font-semibold text-center">
+                      <div className="text-slate-100 text-lg select-none font-semibold text-center">
                         Select comment from the list
                       </div>
                     )}
