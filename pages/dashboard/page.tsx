@@ -3,8 +3,9 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { db } from "../../firebase";
 import useFetchReports, { CommentType } from "../../hooks/fetchReports";
-import { AddComment, CommentList, EditComment } from "../../components/Comments";
+import { AddComment,CommentList, EditComment } from "components/Comments";
 import { IframeGrid, ReportList } from "../../components/Reports";
+
 
 function Dashboard(): JSX.Element {
   const { currentUser } = useAuth();
