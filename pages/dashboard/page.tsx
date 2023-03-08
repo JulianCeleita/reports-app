@@ -3,8 +3,8 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { db } from "../../firebase";
 import useFetchReports, { CommentType } from "../../hooks/fetchReports";
-import { AddComment,CommentList, EditComment } from "components/Comments";
-import { IframeGrid, ReportList } from "../../components/Reports";
+import { AddComment,CommentList, EditComment } from "../../components/comments";
+import { IframeGrid, ReportList } from "../../components/reports";
 
 
 function Dashboard(): JSX.Element {
